@@ -1,0 +1,53 @@
+import os
+import cv2
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+
+# Step 1: Data Preparation
+# Assuming you have downloaded and extracted the dataset into a directory called "hand_gestures"
+data_dir = "hand_gestures"
+
+# Initialize lists to store images and labels
+X = []
+y = []
+
+# Load and preprocess the images
+for gesture in os.listdir(data_dir):
+    gesture_dir = os.path.join(data_dir, gesture)
+    for img_name in os.listdir(gesture_dir):
+        img_path = os.path.join(gesture_dir, img_name)
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)  # Read the image in grayscale
+        img = cv2.resize(img, (100, 100))  # Resize the image to a fixed size
+        X.append(img.flatten())  # Flatten the image array
+        y.append(gesture)  # Assign a label to the image (gesture class)
+
+# Convert lists to numpy arrays
+X = np.array(X)
+y = np.array(y)
+
+# Step 2: Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 3: Model Training
+# Initialize the SVM classifier
+svm_classifier = SVC(kernel='linear')
+
+# Train the SVM classifier
+svm_classifier.fit(X_train, y_train)
+
+# Step 4: Model Evaluation
+# Evaluate the SVM classifier's performance on the testing set
+y_pred = svm_classifier.predict(X_test)
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+# Step 5: Prediction (Optional)
+# Use the trained SVM classifier to predict the labels of new hand gesture images
+# Replace "new_image_path" with the path to the new image
+# new_img = cv2.imread("new_image_path", cv2.IMREAD_GRAYSCALE)
+# new_img = cv2.resize(new_img, (100, 100))
+# new_img_features = new_img.flatten()
+# prediction = svm_classifier.predict([new_img_features])
+# print("Prediction:", prediction)
